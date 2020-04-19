@@ -1,3 +1,11 @@
 Rails.application.routes.draw do
-  # For details on the DSL available within this file, see https://guides.rubyonrails.org/routing.html
+  root :to => 'application#api'
+  namespace :api do
+    namespace :v1 do
+      #region Authentication routes
+        post 'login' => 'authentication#login'
+        post 'sign_up' => 'authentication#sign_up'
+        post 'otp/create' => 'otps#create'
+    end
+  end
 end
