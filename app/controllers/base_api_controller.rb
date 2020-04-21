@@ -13,7 +13,7 @@ class BaseAPIController < ApplicationController
       request.headers['Authorization'].split(' ').last
     end
 
-    unless @token.present? && decoded_token.present? && decoded_token[:id].present?
+    unless @token.present? && decoded_token.present? && decoded_token[:uuid].present?
       raise Exceptions::NotAuthenticatedError
     end
     dt = decoded_token
