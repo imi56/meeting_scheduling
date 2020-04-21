@@ -2,6 +2,7 @@ module API::V1
   class AuthenticationController < APIController
     attr_reader :user
     before_action :find_user, only: [:login]
+    before_action :remove_attr_for_guest, only: [:sign_up]
     before_action :verify_otp, only: [:login, :sign_up]
     #region dependencies
       require 'jwt_auth_token'
@@ -23,7 +24,7 @@ module API::V1
 
     def login
       render_error( ['Phone not registered, please sign up']) and return if user.blank?
-      deleteOtp(params[:phone])
+      deleteOtp(params[:phone]) if params[:guest].to_s != "true"
       response = get_token_data({ uuid: user.uuid, guest: user.guest })
       render json: { login: response }, status: :ok
     end
@@ -44,13 +45,17 @@ module API::V1
     end
 
     def deleteOtp(phone)
-      return if params[:guest].to_s == "true"
       otp = Otp.where(phone: phone)
       otp.destroy_all if otp.present?
     end
 
     def user_params
       params.permit( :full_name, :phone, :guest)
+    end
+
+    def remove_attr_for_guest
+      params.delete(:phone)
+      params.delete(:otp)
     end
   end
 end
