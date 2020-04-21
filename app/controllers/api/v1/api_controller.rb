@@ -1,12 +1,12 @@
 module API::V1
   class APIController < ApplicationController
+    require 'jwt_auth_token'
+    require 'exceptions'
     # When an error occurs, respond with the proper private method below
     rescue_from Exceptions::AuthenticationTimeoutError, with: :authentication_timeout_handler
     rescue_from Exceptions::NotAuthenticatedError, with: :user_not_authenticated_handler
     rescue_from ActiveRecord::RecordInvalid, with: :invalid_record_handler
     rescue_from ActiveRecord::InvalidForeignKey, with: :foreign_key_constraint_handler
-    require 'jwt_auth_token'
-    require 'exceptions'
 
     def authenticate_user!
       dt = validate_params
@@ -22,7 +22,6 @@ module API::V1
       @token ||= if request.headers['Authorization'].present?
         request.headers['Authorization'].split(' ').last
       end
-      byebug
       unless @token.present? && decoded_token.present? && decoded_token[:uuid].present?
         raise Exceptions::NotAuthenticatedError
       end

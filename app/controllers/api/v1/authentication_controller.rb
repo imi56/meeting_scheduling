@@ -41,7 +41,7 @@ module API::V1
     end
 
     def find_user
-      @user = User.find_by(uuid: params[:uuid])
+      @user = User.find_by(phone: params[:phone])
     end
 
     def deleteOtp(phone)

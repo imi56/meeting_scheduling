@@ -3,7 +3,7 @@ module API::V1
     before_action :authenticate_user!
     def index
       slots = Slot.all.map {|s| s.slot_json}
-      render json: slots, status: :ok
+      render_success(slots)
     end
   end
 end

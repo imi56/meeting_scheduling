@@ -1,6 +1,9 @@
 class User < ApplicationRecord
   before_validation :generate_uuid, on: :create
 
+  has_many :user_slots, dependent: :destroy
+  has_many :slots, through: :user_slots, dependent: :destroy
+
   validates_presence_of :full_name, :uuid
   validates :phone, presence: true, uniqueness: true, unless: lambda {|u| u.guest?}
   validates_numericality_of :phone, message: 'should only contain digits', unless: lambda {|u| u.guest?}

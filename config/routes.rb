@@ -7,6 +7,7 @@ Rails.application.routes.draw do
       post 'otp/create' => 'otps#create'
 
       resources :slots, only: [:index]
+      resources :user_slots, only: [:create, :index]
     end
   end
 end
