@@ -12,10 +12,9 @@ module API::V1
     def sign_up
       render_error( ['Phone already registered, please login']) and return if user.present?
       user = User.new(user_params)
-      if user.valid?
+      if user.save
         deleteOtp(params[:phone])
         response  = get_token_data({ uuid: user.uuid, guest: params[:guest] })
-        user.save!
         render json: { sign_up: response }, status: :ok
       else
         render_error(user.errors) and return
