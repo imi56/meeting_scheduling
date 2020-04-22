@@ -2,6 +2,7 @@ module API::V1
   class APIController < ApplicationController
     require 'jwt_auth_token'
     require 'exceptions'
+
     # When an error occurs, respond with the proper private method below
     rescue_from Exceptions::AuthenticationTimeoutError, with: :authentication_timeout_handler
     rescue_from Exceptions::NotAuthenticatedError, with: :user_not_authenticated_handler

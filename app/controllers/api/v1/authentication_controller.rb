@@ -1,13 +1,13 @@
 module API::V1
   class AuthenticationController < APIController
+    #region dependencies
+      require 'jwt_auth_token'
+    #endregion dependencies
+
     attr_reader :user
     before_action :find_user, only: [:login]
     before_action :remove_attr_for_guest, only: [:sign_up]
-    before_action :verify_otp, only: [:login, :sign_up]
-    #region dependencies
-      require 'jwt_auth_token'
-      include AuthHelper
-    #endregion dependencies
+    before_action :verify_otp, only: [:login, :sign_up], if: -> { params[:guest].to_s == 'false' }
 
     def sign_up
       render_error( ['Phone already registered, please login']) and return if user.present?
@@ -31,12 +31,19 @@ module API::V1
 
     private
 
+    def get_token_data(data_to_be_encoded={})
+      data = {}
+      token = JwtAuthToken.encode(data_to_be_encoded)
+      data[:auth_token] = token
+      data[:expiry] = JwtAuthToken::Constants::DEFAULT_TTL
+      data
+    end
+
     def guest?
-      params[:guest].to_s == "true" || @user.guest?
+      @user.guest?
     end
 
     def verify_otp
-      return if guest?
       render_error(['Invalid OTP']) and return unless Otp.verify(params[:phone], params[:otp])
     end
 
