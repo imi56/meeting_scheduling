@@ -7,7 +7,6 @@ module API::V1
     rescue_from Exceptions::AuthenticationTimeoutError, with: :authentication_timeout_handler
     rescue_from Exceptions::NotAuthenticatedError, with: :user_not_authenticated_handler
     rescue_from ActiveRecord::RecordInvalid, with: :invalid_record_handler
-    rescue_from ActiveRecord::InvalidForeignKey, with: :foreign_key_constraint_handler
 
     def authenticate_user!
       dt = validate_params
@@ -49,8 +48,5 @@ module API::V1
       render_error(e.record.errors.full_messages)
     end
 
-    def foreign_key_constraint_handler
-      render_error(["This record is associated with some other record, can't be deleted"])
-    end
   end
 end
