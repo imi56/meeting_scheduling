@@ -41,5 +41,11 @@ class Otp < ApplicationRecord
     otp.password.eql?(verifying_otp) ? true : false
   end
 
+  def otp_json
+    self.as_json(
+      only: [:password]
+    )
+  end
+
 #endregion
 end

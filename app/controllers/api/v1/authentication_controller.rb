@@ -7,14 +7,15 @@ module API::V1
     attr_reader :user
     before_action :find_user, only: [:login]
     before_action :remove_attr_for_guest, only: [:sign_up]
-    before_action :verify_otp, only: [:login, :sign_up], if: -> { params[:guest].to_s == 'false' }
+    before_action :verify_otp, only: [:login, :sign_up]
 
     def sign_up
       render_error( ['Phone already registered, please login']) and return if user.present?
       user = User.new(user_params)
-      if user.save
+      if user.valid?
         deleteOtp(params[:phone])
-        response  = get_token_data({ uuid: user.uuid, guest: user.guest? })
+        response  = get_token_data({ uuid: user.uuid, guest: params[:guest] })
+        user.save!
         render json: { sign_up: response }, status: :ok
       else
         render_error(user.errors) and return
@@ -25,11 +26,15 @@ module API::V1
     def login
       render_error( ['Phone not registered, please sign up']) and return if user.blank?
       deleteOtp(params[:phone]) if params[:guest].to_s != "true"
-      response = get_token_data({ uuid: user.uuid, guest: user.guest })
+      response = get_token_data({ uuid: user.uuid, guest: params[:guest] })
       render json: { login: response }, status: :ok
     end
 
     private
+
+    def guest?
+      params[:guest].to_s == 'true'
+    end
 
     def get_token_data(data_to_be_encoded={})
       data = {}
@@ -39,11 +44,8 @@ module API::V1
       data
     end
 
-    def guest?
-      @user.guest?
-    end
-
     def verify_otp
+      return if guest?
       render_error(['Invalid OTP']) and return unless Otp.verify(params[:phone], params[:otp])
     end
 
@@ -52,6 +54,7 @@ module API::V1
     end
 
     def deleteOtp(phone)
+      return if guest?
       otp = Otp.where(phone: phone)
       otp.destroy_all if otp.present?
     end
@@ -61,6 +64,7 @@ module API::V1
     end
 
     def remove_attr_for_guest
+      return unless guest?
       params.delete(:phone)
       params.delete(:otp)
     end
