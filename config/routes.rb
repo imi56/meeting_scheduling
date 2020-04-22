@@ -8,6 +8,7 @@ Rails.application.routes.draw do
 
       resources :slots, only: [:index]
       resources :user_slots, only: [:create, :index]
+      resources :meetings, only: [:create]
     end
   end
 end

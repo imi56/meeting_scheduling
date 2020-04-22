@@ -3,6 +3,8 @@ class User < ApplicationRecord
 
   has_many :user_slots, dependent: :destroy
   has_many :slots, through: :user_slots, dependent: :destroy
+  has_many :meetings
+  has_many :delegated_meetings, class_name: 'Meeting', foreign_key: 'booked_by_id'
 
   validates_presence_of :full_name, :uuid
   validates :phone, presence: true, uniqueness: true, unless: lambda {|u| u.guest?}

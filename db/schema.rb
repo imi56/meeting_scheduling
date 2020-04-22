@@ -10,10 +10,19 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_04_21_182814) do
+ActiveRecord::Schema.define(version: 2020_04_22_062937) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "meetings", force: :cascade do |t|
+    t.bigint "user_slot_id", null: false
+    t.integer "booked_by_id"
+    t.string "status", default: "Booked"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["user_slot_id"], name: "index_meetings_on_user_slot_id"
+  end
 
   create_table "otps", force: :cascade do |t|
     t.string "phone", null: false
@@ -54,6 +63,7 @@ ActiveRecord::Schema.define(version: 2020_04_21_182814) do
     t.index ["uuid"], name: "index_users_on_uuid", unique: true
   end
 
+  add_foreign_key "meetings", "user_slots"
   add_foreign_key "slots", "slot_types"
   add_foreign_key "user_slots", "slots"
   add_foreign_key "user_slots", "users"
